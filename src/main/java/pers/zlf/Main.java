@@ -2,6 +2,7 @@ package pers.zlf;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -12,7 +13,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
@@ -62,7 +62,6 @@ public class Main {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
             if (e instanceof ParseException) {
                 FORMATTER.printHelp(USAGE, Main.OPTIONS);
             }
@@ -71,7 +70,7 @@ public class Main {
 
     private static void launch(GameArgs args,
             boolean relaunch) throws IOException, ExecutionException,
-            InterruptedException, AuthenticationException {
+            InterruptedException, LaunchException {
         MinecraftDirectory dir = new MinecraftDirectory(args.getDirectoryPath());
 
         Authenticator auth;
@@ -84,16 +83,28 @@ public class Main {
                                                    args.getPassword());
         }
 
-        Version version = null;
+        String verStr;
         String presentVer = args.getMcVer();
         if (presentVer == null || presentVer.length() == 0) {
             File versionsDir = dir.getVersions();
-            //TODO sort
+            if (!versionsDir.exists() || !versionsDir.isDirectory()) {
+                throw new LaunchException("versions directory not existed");
+            }
+
+            String[] vers = versionsDir.list();
+            Arrays.sort(vers, new VersionComparator());
+            verStr = vers[vers.length - 1];
         } else {
-            version = Versions.resolveVersion(dir, presentVer);
+            verStr = presentVer;
+        }
+
+        Version version = Versions.resolveVersion(dir, verStr);
+        if (version == null) {
+            throw new LaunchException("Version directory not existed: " + verStr);
         }
 
         LaunchOption opt = new LaunchOption(version, auth, dir);
+
         if (args.isFullScreen()) {
             opt.setWindowSize(WindowSize.fullscreen());
         }
@@ -106,6 +117,8 @@ public class Main {
                                    ((MissingDependenciesException) e)
                                            .getMissingLibraries());
                 launch(args, true);
+            } else {
+                throw e;
             }
         }
     }
