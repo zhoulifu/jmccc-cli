@@ -31,7 +31,7 @@ import org.to2mbn.jmccc.version.parsing.Versions;
 
 public class Main {
     private static String DEFAULT_PLAYER_NAME = "hello world";
-    private static String USAGE = "java -jar packaged.jar [OPTION]... /path/to/" +
+    private static String USAGE = "java -jar jmccc-cli.jar [OPTION]... /path/to/" +
                                   ".minecraft";
     static Options OPTIONS;
     static Launcher LAUNCHER = LauncherBuilder.buildDefault();
