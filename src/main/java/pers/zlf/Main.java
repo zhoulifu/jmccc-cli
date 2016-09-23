@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -13,6 +12,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
@@ -69,8 +69,7 @@ public class Main {
     }
 
     private static void launch(GameArgs args,
-            boolean relaunch) throws IOException, ExecutionException,
-            InterruptedException, LaunchException {
+            boolean relaunch) throws LaunchException, InterruptedException {
         MinecraftDirectory dir = new MinecraftDirectory(args.getDirectoryPath());
 
         Authenticator auth;
@@ -79,8 +78,12 @@ public class Main {
                     args.getUsername() == null ? DEFAULT_PLAYER_NAME
                                                : args.getUsername());
         } else {
-            auth = YggdrasilAuthenticator.password(args.getUsername(),
-                                                   args.getPassword());
+            try {
+                auth = YggdrasilAuthenticator.password(args.getUsername(),
+                                                       args.getPassword());
+            } catch (AuthenticationException e) {
+                throw new LaunchException(e);
+            }
         }
 
         String verStr;
@@ -88,7 +91,7 @@ public class Main {
         if (presentVer == null || presentVer.length() == 0) {
             File versionsDir = dir.getVersions();
             if (!versionsDir.exists() || !versionsDir.isDirectory()) {
-                throw new LaunchException("versions directory not existed");
+                throw new LaunchException("Versions directory not existed");
             }
 
             String[] vers = versionsDir.list();
@@ -98,7 +101,13 @@ public class Main {
             verStr = presentVer;
         }
 
-        Version version = Versions.resolveVersion(dir, verStr);
+        Version version;
+        try {
+            version = Versions.resolveVersion(dir, verStr);
+        } catch (IOException e) {
+            throw new LaunchException("Parse version " + verStr + " failed", e);
+        }
+
         if (version == null) {
             throw new LaunchException("Version directory not existed: " + verStr);
         }
@@ -113,9 +122,10 @@ public class Main {
             LAUNCHER.launch(opt);
         } catch (LaunchException e) {
             if ((e instanceof MissingDependenciesException) && !relaunch) {
-                downloadMissingJar(dir,
-                                   ((MissingDependenciesException) e)
-                                           .getMissingLibraries());
+                System.out.println("Missing Library: " + e.getMessage());
+                downloadMissingJar(dir, ((MissingDependenciesException) e)
+                        .getMissingLibraries());
+                System.out.println("Trying to relaunch minecraft");
                 launch(args, true);
             } else {
                 throw e;
@@ -124,15 +134,21 @@ public class Main {
     }
 
     private static void downloadMissingJar(MinecraftDirectory dir,
-            Set<Library> libraries) throws ExecutionException, InterruptedException {
-        MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
-
-        for (Library library : libraries) {
-            Future<Void> future = downloader.download(
-                    downloader.getProvider().library(dir, library), null);
-            future.get();
+            Set<Library> libraries) throws InterruptedException {
+        if (libraries == null || libraries.size() == 0) {
+            return;
         }
 
+        MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
+        CountDownLatch cdl = new CountDownLatch(libraries.size());
+
+        for (Library library : libraries) {
+            System.out.println("Downloading Library " + library);
+            downloader.download(downloader.getProvider().library(dir, library),
+                                new LogCallback(cdl, library));
+        }
+
+        cdl.await();
         downloader.shutdown();
     }
 
