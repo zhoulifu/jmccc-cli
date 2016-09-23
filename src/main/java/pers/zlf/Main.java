@@ -42,12 +42,12 @@ public class Main {
         OPTIONS.addOption(new Option("f", "full-screen", false, "full screen"));
         OPTIONS.addOption(new Option("o", "offline-mode", false, "offline mode"));
         OPTIONS.addOption(new Option("h", "print this help information"));
-        OPTIONS.addOption(Option.builder("u").hasArg().numberOfArgs(1)
+        OPTIONS.addOption(Option.builder("u").hasArg()
                                 .desc("the username of Yggdrasil. (or player's name if " +
                                       "enable offline mode)").build());
-        OPTIONS.addOption(Option.builder("p").hasArg().numberOfArgs(1)
-                                .desc("the password of Yggdrasil").build());
-        OPTIONS.addOption(Option.builder("V").hasArg().numberOfArgs(1)
+        OPTIONS.addOption(Option.builder("p").hasArg().desc("the password of Yggdrasil")
+                                .build());
+        OPTIONS.addOption(Option.builder("V").hasArg()
                                 .desc("launch specified minecraft version, if none " +
                                       "specified, launch the latest version provided in" +
                                       " .minecraft/versions").build());

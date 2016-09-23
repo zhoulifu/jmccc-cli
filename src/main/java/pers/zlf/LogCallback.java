@@ -17,23 +17,19 @@ public class LogCallback extends CallbackAdapter<Void> {
     @Override
     public void done(Void result) {
         cdl.countDown();
-        print("[" + library.toString() +"] has been downloaded successfully");
+        System.out.println("[" + library.toString() +"] has been downloaded successfully");
     }
 
     @Override
     public void failed(Throwable e) {
         cdl.countDown();
-        print("Exception occurred while downloading [" + library.toString() +
+        System.out.println("Exception occurred while downloading [" + library.toString() +
               "] due to " + e.toString());
     }
 
     @Override
     public void cancelled() {
         cdl.countDown();
-        print("Download task [" + library.toString() + "] has been cancelled");
-    }
-
-    private static synchronized void print(String s) {
-        System.out.println(s);
+        System.out.println("Download task [" + library.toString() + "] has been cancelled");
     }
 }
