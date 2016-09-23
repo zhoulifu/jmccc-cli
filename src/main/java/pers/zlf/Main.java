@@ -51,6 +51,12 @@ public class Main {
                                 .desc("launch specified minecraft version, if none " +
                                       "specified, launch the latest version provided in" +
                                       " .minecraft/versions").build());
+        OPTIONS.addOption(Option.builder(null).longOpt("min-heap").argName("size")
+                                .hasArg().desc("set initial Java heap size to SIZE Mb for " +
+                                      "launching minecraft").build());
+        OPTIONS.addOption(Option.builder(null).longOpt("max-heap").argName("size")
+                                .hasArg().desc("set maximum Java heap size to SIZE Mb for " +
+                                      "launching minecraft").build());
     }
 
     public static void main(String[] args) throws Exception {
@@ -113,6 +119,14 @@ public class Main {
         }
 
         LaunchOption opt = new LaunchOption(version, auth, dir);
+
+        if (args.getMinHeapSize() != null) {
+            opt.setMinMemory(args.getMinHeapSize());
+        }
+
+        if (args.getMaxHeapSize() != null) {
+            opt.setMaxMemory(args.getMaxHeapSize());
+        }
 
         if (args.isFullScreen()) {
             opt.setWindowSize(WindowSize.fullscreen());
@@ -179,6 +193,14 @@ public class Main {
 
         if (cmd.hasOption("V")) {
             ags.setMcVer(cmd.getOptionValue("V"));
+        }
+
+        if (cmd.hasOption("min-heap")) {
+            ags.setMinHeapSize(Integer.valueOf(cmd.getOptionValue("min-heap")));
+        }
+
+        if (cmd.hasOption("max-heap")) {
+            ags.setMaxHeapSize(Integer.valueOf(cmd.getOptionValue("max-heap")));
         }
 
         String[] path = cmd.getArgs();

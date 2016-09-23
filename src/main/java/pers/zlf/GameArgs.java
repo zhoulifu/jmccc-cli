@@ -8,6 +8,9 @@ class GameArgs {
     private boolean offlineMode;
     private boolean fullScreen;
 
+    private Integer minHeapSize; //Mb
+    private Integer maxHeapSize; //Mb
+
     public String getMcVer() {
         return mcVer;
     }
@@ -45,7 +48,7 @@ class GameArgs {
     }
 
     public void offlineMode() {
-        this.offlineMode = true;
+        this.setOfflineMode(true);
     }
 
     public boolean isFullScreen() {
@@ -53,7 +56,31 @@ class GameArgs {
     }
 
     public void fullScreen() {
-        this.fullScreen = true;
+        this.setFullScreen(true);
+    }
+
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode = offlineMode;
+    }
+
+    public void setFullScreen(boolean fullScreen) {
+        this.fullScreen = fullScreen;
+    }
+
+    public Integer getMinHeapSize() {
+        return minHeapSize;
+    }
+
+    public void setMinHeapSize(Integer minHeapSize) {
+        this.minHeapSize = minHeapSize;
+    }
+
+    public Integer getMaxHeapSize() {
+        return maxHeapSize;
+    }
+
+    public void setMaxHeapSize(Integer maxHeapSize) {
+        this.maxHeapSize = maxHeapSize;
     }
 
     @Override
@@ -65,6 +92,8 @@ class GameArgs {
                ", password='" + password + '\'' +
                ", offlineMode=" + offlineMode +
                ", fullScreen=" + fullScreen +
+               ", minHeapSize=" + minHeapSize +
+               ", maxHeapSize=" + maxHeapSize +
                '}';
     }
 }
