@@ -48,9 +48,9 @@ public class Main {
         OPTIONS.addOption(Option.builder("p").hasArg().numberOfArgs(1)
                                 .desc("the password of Yggdrasil").build());
         OPTIONS.addOption(Option.builder("V").hasArg().numberOfArgs(1)
-                                .desc("run specified minecraft version,if none " +
-                                      "specified, run the latest version in " +
-                                      ".minecraft/versions").build());
+                                .desc("launch specified minecraft version, if none " +
+                                      "specified, launch the latest version provided in" +
+                                      " .minecraft/versions").build());
     }
 
     public static void main(String[] args) throws Exception {
