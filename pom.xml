@@ -5,32 +5,36 @@
 
     <groupId>pers.zlf</groupId>
     <artifactId>jmccc-cli</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>jmccc-cli</name>
 
     <properties>
+        <distribution.dir>dist</distribution.dir>
+        <classpath.prefix>libs/</classpath.prefix>
+        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jmccc.version>2.5-beta-1</jmccc.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.to2mbn</groupId>
             <artifactId>jmccc</artifactId>
-            <version>2.5-beta-1</version>
+            <version>${jmccc.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.to2mbn</groupId>
             <artifactId>jmccc-mcdownloader</artifactId>
-            <version>2.5-beta-1</version>
+            <version>${jmccc.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.to2mbn</groupId>
             <artifactId>jmccc-yggdrasil-authenticator</artifactId>
-            <version>2.5-beta-1</version>
+            <version>${jmccc.version}</version>
         </dependency>
 
         <dependency>
@@ -41,40 +45,70 @@
     </dependencies>
 
     <build>
-        <finalName>jmccc-cli</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>${classpath.prefix}</classpathPrefix>
+                            <mainClass>pers.zlf.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/${classpath.prefix}
+                    </outputDirectory>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.1</version>
                 <configuration>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>pers.zlf.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                    <descriptor>assembly.xml</descriptor>
+                    <outputDirectory>${project.basedir}/${distribution.dir}</outputDirectory>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${distribution.dir}</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
         </plugins>
     </build>
