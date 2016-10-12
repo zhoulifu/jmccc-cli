@@ -1,4 +1,4 @@
-package pers.zlf;
+package pers.zlf.jmcli;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +29,11 @@ import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
+import pers.zlf.jmcli.util.VersionComparator;
+import pers.zlf.jmcli.util.LogCallback;
+
 public class Main {
-    private static String DEFAULT_PLAYER_NAME = "hello world";
+    private static String DEFAULT_PLAYER_NAME = "Hello Minecraft";
     private static String USAGE = "java -jar jmccc-cli.jar [OPTION]... /path/to/" +
                                   ".minecraft";
     static Options OPTIONS;

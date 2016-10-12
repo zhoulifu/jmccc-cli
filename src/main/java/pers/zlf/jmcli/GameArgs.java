@@ -1,4 +1,4 @@
-package pers.zlf;
+package pers.zlf.jmcli;
 
 class GameArgs {
     private String mcVer;

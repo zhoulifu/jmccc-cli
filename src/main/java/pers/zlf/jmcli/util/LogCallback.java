@@ -1,4 +1,4 @@
-package pers.zlf;
+package pers.zlf.jmcli.util;
 
 import java.util.concurrent.CountDownLatch;
 

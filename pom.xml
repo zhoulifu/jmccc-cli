@@ -55,7 +55,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>${classpath.prefix}</classpathPrefix>
-                            <mainClass>pers.zlf.Main</mainClass>
+                            <mainClass>pers.zlf.jmcli.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
