@@ -12,7 +12,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
@@ -29,16 +28,16 @@ import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
-import pers.zlf.jmcli.util.VersionComparator;
 import pers.zlf.jmcli.util.LogCallback;
+import pers.zlf.jmcli.util.VersionComparator;
 
 public class Main {
     private static String DEFAULT_PLAYER_NAME = "Hello Minecraft";
     private static String USAGE = "java -jar jmccc-cli.jar [OPTION]... /path/to/" +
                                   ".minecraft";
-    static Options OPTIONS;
-    static Launcher LAUNCHER = LauncherBuilder.buildDefault();
-    static HelpFormatter FORMATTER = new HelpFormatter();
+    private static Options OPTIONS;
+    private static Launcher LAUNCHER = LauncherBuilder.buildDefault();
+    private static HelpFormatter FORMATTER = new HelpFormatter();
 
     static {
         OPTIONS = new Options();
@@ -67,7 +66,7 @@ public class Main {
         try {
             GameArgs gameArgs = parse(args);
             if (gameArgs != null) {
-                launch(gameArgs, false);
+                launch(gameArgs);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,22 +76,15 @@ public class Main {
         }
     }
 
-    private static void launch(GameArgs args,
-            boolean relaunch) throws LaunchException, InterruptedException {
+    private static void launch(GameArgs args) throws LaunchException, InterruptedException {
         MinecraftDirectory dir = new MinecraftDirectory(args.getDirectoryPath());
 
         Authenticator auth;
         if (args.isOfflineMode()) {
             auth = new OfflineAuthenticator(
-                    args.getUsername() == null ? DEFAULT_PLAYER_NAME
-                                               : args.getUsername());
+                    args.getUsername() == null ? DEFAULT_PLAYER_NAME : args.getUsername());
         } else {
-            try {
-                auth = YggdrasilAuthenticator.password(args.getUsername(),
-                                                       args.getPassword());
-            } catch (AuthenticationException e) {
-                throw new LaunchException(e);
-            }
+            auth = YggdrasilAuthenticator.password(args.getUsername(), args.getPassword());
         }
 
         String verStr;
@@ -138,12 +130,12 @@ public class Main {
         try {
             LAUNCHER.launch(opt);
         } catch (LaunchException e) {
-            if ((e instanceof MissingDependenciesException) && !relaunch) {
+            if (e instanceof MissingDependenciesException) {
                 System.out.println("Missing Library: " + e.getMessage());
                 downloadMissingJar(dir, ((MissingDependenciesException) e)
                         .getMissingLibraries());
                 System.out.println("Trying to relaunch minecraft");
-                launch(args, true);
+                LAUNCHER.launch(opt);
             } else {
                 throw e;
             }
