@@ -102,7 +102,7 @@ public class Main {
         downloader.shutdown();
     }
 
-    private static LaunchOption parse(
+    static LaunchOption parse(
             String[] args) throws LaunchException, ParseException {
         DefaultParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(Main.OPTIONS, args);

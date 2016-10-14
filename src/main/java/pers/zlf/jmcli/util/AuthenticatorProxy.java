@@ -42,4 +42,8 @@ public class AuthenticatorProxy implements Authenticator {
                 (username == null ? DEFAULT_PLAYER_NAME : username))
                            : YggdrasilAuthenticator.password(username, password);
     }
+
+    public boolean isOfflineMode() {
+        return offlineMode;
+    }
 }
